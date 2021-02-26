@@ -1,11 +1,12 @@
-from  Bullet import Bullet, fromAngle
+from  Bullet import Bullet
 from p5 import *
 import numpy as np
 import random
+from fromAngle import fromAngle
 
 class Caracter:
     def __init__(self, ID, direction, x, y, magni, demage, HP, capacity, reloadTime, bulletVelocity):
-        self.magni
+        self.magni = magni
         self.direction = direction
         self.vel = fromAngle(self.direction, self.magni)
 
