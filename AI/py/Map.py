@@ -1,25 +1,27 @@
 import random
 import math
-from Caracter import *
-from Bullet import *
+from Caracter import Caracter
+from Bullet import Bullet
 import numpy as np
 from fromAngle import fromAngle
 
 class Map:
-    def __init__ (self, population) :
+    def __init__ (self, population, width, height) :
         self.population = population
         self.caracters = []
+        self.width = width
+        self.height = height
         for i in range(population):
             caracter = Caracter(
-                x = math.floor(random.random() * width),
-                y = math.floor(random.random() * height),
+                x = math.floor(random.random() * self.width),
+                y = math.floor(random.random() * self.height),
                 demage = 200,
-                velocity = 1, 
-                bulletVelocity = 5,
+                magni = 1, 
+                bulletVelocity = 2,
                 HP = 200,
                 capacity = 10,
                 reloadTime = 3000,
-                direction = random.random() * PI * 2,
+                direction = random.random() * math.pi * 2,
                 ID = i
             )
 
@@ -31,7 +33,7 @@ class Map:
 
 
 
-    def update ():
+    def update (self):
 
         newCaracters = []
 
@@ -44,10 +46,10 @@ class Map:
             for bullet in self.bullets:
                 bullet.update()
                 if (
-                    bullet.pos.x < 0 or
-                    bullet.pos.x > width or
-                    bullet.pos.y < 0 or
-                    bullet.pos.y > height
+                    bullet.pos[0] < 0 or
+                    bullet.pos[0]> self.width or
+                    bullet.pos[1] < 0 or
+                    bullet.pos[1] > self.height
                 ): continue
 
 
@@ -70,9 +72,9 @@ class Map:
 
             if(
                     caracter.pos[0] < 0 or 
-                    caracter.pos[0] > width or
+                    caracter.pos[0] > self.width or
                     caracter.pos[1] < 0 or
-                    caracter.pos[1] > height or
+                    caracter.pos[1] > self.height or
                     caracter.HP <= 0
                     
             ):
@@ -81,13 +83,15 @@ class Map:
                 caracter.rank = self.rankCounter
                 if (self.rankCounter == self.population):
                     print("Megdöglött az összes")
+                    for caracter in self.caracters:
+                        print(caracter)
             newCaracters.append(caracter)
 
         self.caracters = newCaracters
 
 
 
-    def show ():
+    def show (self):
 
         for caracter in self.caracters:
             if (caracter.visible): caracter.show()
