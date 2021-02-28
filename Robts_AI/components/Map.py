@@ -7,7 +7,7 @@ from .Character import Character
 
 
 class Map:
-    def __init__(self, population, width, height):
+    def __init__(self, population: int, width: int, height: int):
         self.population = population
         self.characters = []
         self.width = width
@@ -18,7 +18,7 @@ class Map:
                 y=math.floor(random.random() * self.height),
                 damage=200,
                 magnitude=1,
-                bulletVelocity=2,
+                bulletMagnitude=2,
                 HP=200,
                 capacity=10,
                 reloadTime=3000,
@@ -41,7 +41,14 @@ class Map:
                 continue
 
             newBullets = []
+
+            nearestBulletDistance = np.linalg.norm(self.bullets[0].pos - character.pos) if len(
+                self.bullets) != 0 else False
+
             for bullet in self.bullets:
+                BULLET_CHARACTER_DISTANCE = np.linalg.norm(bullet.pos - character.pos)
+                if BULLET_CHARACTER_DISTANCE < nearestBulletDistance:
+                    nearestBulletDistance = BULLET_CHARACTER_DISTANCE
                 bullet.update()
                 if (
                         bullet.pos[0] < 0 or
@@ -54,13 +61,12 @@ class Map:
                     newBullets.append(bullet)
                     continue
 
-                if np.linalg.norm(bullet.pos - character.pos) < 15:
+                if BULLET_CHARACTER_DISTANCE < 15:
                     character.HP -= bullet.damage
                 else:
                     newBullets.append(bullet)
 
-                self.bullets = newBullets
-
+            self.bullets = newBullets
             character.update()
             shot = character.shot()
 
@@ -82,6 +88,9 @@ class Map:
                     print("Megdöglött az összes")
                     for person in self.characters:
                         print(person)
+                    newCharacters.append(character)
+                    break
+
             newCharacters.append(character)
 
         self.characters = newCharacters

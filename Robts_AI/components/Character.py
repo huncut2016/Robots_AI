@@ -7,14 +7,14 @@ from .fromAngle import fromAngle
 
 # noinspection PyTypeChecker
 class Character:
-    def __init__(self, ID, direction, x, y, magnitude, damage, HP, capacity, reloadTime, bulletVelocity):
+    def __init__(self, ID: int, direction, x, y, magnitude, damage, HP, capacity, reloadTime, bulletMagnitude):
         self.magnitude = magnitude
         self.direction = direction
         self.vel = fromAngle(self.direction, self.magnitude)
 
         self.pos = np.array([x, y])
         self.ID = ID
-        self.bulletVelocity = bulletVelocity
+        self.bulletMagnitude = bulletMagnitude
         self.damage = damage
         self.capacity = capacity
         self.HP = HP
@@ -31,7 +31,7 @@ class Character:
 
     def update(self):
         self.pos = self.pos + self.vel
-        self.isShot = random.random() < 0.005 if True else False
+        self.isShot = True if random.random() < 0.005 else False
 
     def show(self):
         fill(255)  # p5
@@ -47,7 +47,7 @@ class Character:
             return Bullet(
                 x=self.pos[0],
                 y=self.pos[1],
-                magnitude=self.bulletVelocity,
+                magnitude=self.bulletMagnitude,
                 damage=self.damage,
                 direction=self.direction,
                 ID=self.ID
