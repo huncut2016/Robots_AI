@@ -3,12 +3,12 @@ from p5 import *  # p5
 from .components.Map import Map
 
 
-def Game(width=800, height=800, population=10):
+def Game(width=800, height=800, populationSize=10):
     isRun = True
 
     if isRun:
         field = Map(
-            population=population,
+            populationSize=populationSize,
             width=width,
             height=height
         )
