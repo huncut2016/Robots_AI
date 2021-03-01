@@ -15,6 +15,12 @@ class Bullet:
     def update(self):
         self.pos = self.pos + self.vel
 
+    def __str__(self):
+        return str( f"""
+            Bullet{self.ID}------------
+            Pos: {self.pos}
+        """)
+
     def show(self):
         stroke(255)  # p5
         fill(100)  # p5

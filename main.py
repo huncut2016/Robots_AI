@@ -1,3 +1,3 @@
 from Robts_AI import *
 
-Game(populationSize=10)
+Game(populationSize=2)

@@ -17,13 +17,15 @@ class Map:
                 x=math.floor(random.random() * self.width),
                 y=math.floor(random.random() * self.height),
                 damage=200,
-                magnitude=1,
+                magnitude=3,
                 bulletMagnitude=2,
                 HP=200,
                 capacity=10,
                 reloadTime=3000,
                 direction=random.random() * math.pi * 2,
-                ID=i
+                ID=i,
+                W=self.width,
+                H=self.height
             )
 
             self.characters.append(character)
@@ -42,21 +44,10 @@ class Map:
 
             newBullets = []
 
-            bulletDictionary = False
-            setOfBulletDistances = False
-
-            if len(self.bullets) != 0:
-                firstBulletDistance = np.linalg.norm(
-                    self.bullets[0].pos - character.pos)  # the first bullet distance from the character
-                setOfBulletDistances = {firstBulletDistance}  # set of the distances
-                bulletDictionary = {str(firstBulletDistance): self.bullets[0]}  # bullet distance: bullet dictionary
+            bulletDictionary = {}  # bullet distance: bullet dictionary
+            setOfBulletDistances = []  # set of the distances
 
             for bullet in self.bullets:
-                BULLET_CHARACTER_DISTANCE = np.linalg.norm(
-                    bullet.pos - character.pos)  # The current bullet distance from the character
-
-                bulletDictionary[str(BULLET_CHARACTER_DISTANCE)] = bullet
-                setOfBulletDistances.add(BULLET_CHARACTER_DISTANCE)
 
                 bullet.update()
                 if (
@@ -69,6 +60,12 @@ class Map:
                 if bullet.ID == character.ID:  # If the bullet is coming from the current character
                     newBullets.append(bullet)
                     continue
+                else:
+                    BULLET_CHARACTER_DISTANCE = np.linalg.norm(
+                        bullet.pos - character.pos)  # The current bullet distance from the character
+
+                    bulletDictionary[str(BULLET_CHARACTER_DISTANCE)] = bullet
+                    setOfBulletDistances.append(BULLET_CHARACTER_DISTANCE)
 
                 if BULLET_CHARACTER_DISTANCE < 15:  # if the bullet is hit the character
                     character.HP -= bullet.damage
@@ -76,7 +73,22 @@ class Map:
                     newBullets.append(bullet)
 
             self.bullets = newBullets
-            character.update()
+            setOfBulletDistances = np.sort(setOfBulletDistances, kind="mergesort")
+
+            nearestBullets = []
+            for nearBullet in range(min(3, len(setOfBulletDistances))):
+                currentBulletDistance = str(setOfBulletDistances[nearBullet])
+                nearestBullets.append(bulletDictionary[currentBulletDistance])
+
+            enemy = False
+
+            for foe in self.characters:
+                if foe.ID is not character.ID:
+                    enemy = foe
+                    break
+
+            character.update(enemy=enemy, bullets= nearestBullets)
+
             shot = character.shot()
 
             if shot is not None:
@@ -93,12 +105,12 @@ class Map:
                 self.rankCounter += 1
                 character.visible = False
                 character.rank = self.rankCounter
+                character.HP = 0
                 if self.rankCounter == self.populationSize:
                     print("Megdöglött az összes")
                     for person in self.characters:
                         print(person)
                     newCharacters.append(character)
-                    break
 
             newCharacters.append(character)
 
