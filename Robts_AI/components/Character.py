@@ -33,7 +33,7 @@ class Character:
         self.visible = True
 
         self.model = Sequential([
-            Dense(16, input_shape=(31,), activation='relu'),
+            Dense(42, input_shape=(31,), activation='relu'),
             Dense(16, activation='relu'),
             Dense(9, activation='sigmoid')
         ])
@@ -72,7 +72,7 @@ class Character:
             input_data = np.append(input_data, [bullet.pos[0], bullet.pos[1], bullet.damage, bullet.vel[0], bullet.vel[1]])
 
         input_data = np.append(input_data, [enemy.pos[0], enemy.pos[1], enemy.vel[0], enemy.vel[1], enemy.HP, enemy.capacity, enemy.damage])
-        predict = self.model.predict(np.array([input_data]))
+        predict = self.model(np.array([input_data]), training=False) # self.model.predict(np.array([input_data]))
 
         self.pos = self.pos + self.vel
         self.isShot = True if random.random() < 0.005 else False

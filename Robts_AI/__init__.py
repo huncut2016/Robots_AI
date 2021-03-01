@@ -13,15 +13,12 @@ def Game(width=800, height=800, populationSize=10):
             height=height
         )
 
-        for i in range(2000):
+        def setup():  # p5
+            size(width, height)  # p5
+
+        def draw():  # p5
+            background(0)
             field.update()
+            field.show()
 
-        #def setup():  # p5
-        #    size(width, height)  # p5
-
-       # def draw():  # p5
-         #   background(0)
-
-           # field.show()
-
-      #  run(sketch_setup=setup, sketch_draw=draw, frame_rate=200)  # p5
+        run(sketch_setup=setup, sketch_draw=draw, frame_rate=200)  # p5
