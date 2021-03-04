@@ -1,5 +1,4 @@
 from p5 import *  # p5
-
 from .components.Map import Map
 
 

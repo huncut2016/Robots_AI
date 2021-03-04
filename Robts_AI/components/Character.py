@@ -1,14 +1,13 @@
-from .Bullet import Bullet
-from p5 import *  # p5
-import numpy as np
 import random
-from .fromAngle import fromAngle
-import tensorflow as tf
-from tensorflow import keras
+
+from p5 import *  # p5
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Activation, Dense, Input
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.metrics import categorical_crossentropy
+import numpy as np
+
+from .Bullet import Bullet
+from .fromAngle import fromAngle
+from .Mapping import Mapping
 
 
 # noinspection PyTypeChecker
@@ -21,6 +20,7 @@ class Character:
         self.width = W
         self.height = H
 
+        self.predict = []
         self.pos = np.array([x, y])
         self.ID = ID
         self.bulletMagnitude = bulletMagnitude
@@ -33,11 +33,11 @@ class Character:
         self.visible = True
 
         self.model = Sequential([
-            Dense(42, input_shape=(31,), activation='relu'),
-            Dense(16, activation='relu'),
-            Dense(9, activation='sigmoid')
+            Dense(42, input_shape=(31,), activation='sigmoid'),
+            Dense(16, activation='sigmoid'),
+            Dense(10, activation='sigmoid')
         ])
-        self.model.summary()
+        # self.model.summary()
         self.model.compile(optimizer="Adam", loss="mse", metrics=["mae"])
 
     def __str__(self):
@@ -56,30 +56,63 @@ class Character:
                 direction=self.direction,
                 ID=self.ID
             ))
-        
-        input_data = np.array([
-            self.width,
-            self.height,
-            self.pos[0],
-            self.pos[1],
-            self.vel[0],
-            self.vel[1],
-            self.HP,
-            self.capacity,
-            self.damage])
-        
-        for bullet in bullets:
-            input_data = np.append(input_data, [bullet.pos[0], bullet.pos[1], bullet.damage, bullet.vel[0], bullet.vel[1]])
 
-        input_data = np.append(input_data, [enemy.pos[0], enemy.pos[1], enemy.vel[0], enemy.vel[1], enemy.HP, enemy.capacity, enemy.damage])
-        predict = self.model(np.array([input_data]), training=False) # self.model.predict(np.array([input_data]))
+        input_data = np.array([self.getInfo()])
+
+        for bullet in bullets:
+            input_data = np.append(input_data, bullet.getInfo())
+
+        input_data = np.append(input_data, enemy.getInfo(enemy=True))
+        self.predict = self.model(np.array([input_data]), training=False).numpy()[0]
+        self.usePredict()
 
         self.pos = self.pos + self.vel
-        self.isShot = True if random.random() < 0.005 else False
+        # self.isShot = True if random.random() < 0.005 else False
 
     def show(self):
         fill(255)  # p5
         circle(self.pos[0], self.pos[1], 25)  # p5
+
+    def usePredict(self):
+        faceDirection = self.predict[2] if self.predict[0] > self.predict[1] else self.predict[3]
+        lookup = {
+            "0": np.array([0, self.magnitude]),
+            "1": np.array([0, - self.magnitude]),
+            "2": np.array([self.magnitude, 0]),
+            "3": np.array([- self.magnitude, 0]),
+            "4": np.array([0, 0])
+        }
+        newVelocities = self.predict[5:]
+        velocitiesIndex = str(np.where(newVelocities == max(newVelocities))[0][0])
+        isShot = True if self.predict[4] > 0.5 else False
+
+        self.direction = Mapping(faceDirection, 0, 1, 0, 2 * np.pi)
+        self.isShot = isShot
+        self.vel = lookup[velocitiesIndex]
+
+    def getInfo(self, enemy=False):
+        if enemy:
+            return np.array([
+                self.pos[0],
+                self.pos[1],
+                self.vel[0],
+                self.vel[1],
+                self.HP,
+                self.capacity,
+                self.damage
+            ])
+        else:
+            return np.array([
+                self.width,
+                self.height,
+                self.pos[0],
+                self.pos[1],
+                self.vel[0],
+                self.vel[1],
+                self.HP,
+                self.capacity,
+                self.damage
+            ])
 
     def dead(self, rank):
         self.HP = 0

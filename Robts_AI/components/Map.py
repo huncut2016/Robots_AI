@@ -107,9 +107,9 @@ class Map:
                 character.rank = self.rankCounter
                 character.HP = 0
                 if self.rankCounter == self.populationSize:
-                    print("Megdöglött az összes")
-                    for person in self.characters:
-                        print(person)
+                    #print("Megdöglött az összes")
+                    #for person in self.characters:
+                    #    print(person)
                     newCharacters.append(character)
 
             newCharacters.append(character)

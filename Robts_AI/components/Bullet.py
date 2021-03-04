@@ -15,8 +15,11 @@ class Bullet:
     def update(self):
         self.pos = self.pos + self.vel
 
+    def getInfo(self):
+        return np.array([self.pos[0], self.pos[1], self.damage, self.vel[0], self.vel[1]])
+
     def __str__(self):
-        return str( f"""
+        return str(f"""
             Bullet{self.ID}------------
             Pos: {self.pos}
         """)
