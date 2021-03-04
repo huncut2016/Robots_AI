@@ -37,7 +37,7 @@ class Character:
         self.model = Sequential([
             Dense(42, input_shape=(31,), activation='sigmoid'),
             Dense(16, activation='sigmoid'),
-            Dense(10, activation='sigmoid')
+            Dense(7, activation='sigmoid')
         ])
        # self.model.summary()
         self.model.compile(optimizer="Adam", loss="mse", metrics=["mae"])
@@ -80,7 +80,7 @@ class Character:
         line(self.pos[0], self.pos[1], face[0], face[1])
 
     def usePredict(self):
-        faceDirection = self.predict[2] if self.predict[0] > self.predict[1] else self.predict[3]
+        faceDirection = self.predict[0]
 
         lookup = {
             "0": np.array([0, self.magnitude]),
@@ -90,9 +90,9 @@ class Character:
             "4": np.array([0, 0])
         }
 
-        newVelocities = self.predict[5:]
+        newVelocities = self.predict[2:]
         velocitiesIndex = str(np.where(newVelocities == max(newVelocities))[0][0])
-        isShot = True if self.predict[4] > 0.5 else False
+        isShot = True if self.predict[1] > 0.5 else False
 
         self.direction = Mapping(faceDirection, 0, 1, 0, 2 * np.pi)
         self.isShot = isShot

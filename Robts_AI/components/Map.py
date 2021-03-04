@@ -20,7 +20,7 @@ class Map:
                 magnitude=2,
                 bulletMagnitude=7,
                 HP=200,
-                capacity=10,
+                capacity=5,
                 reloadTime=3.0,
                 direction=random.random() * math.pi * 2,
                 ID=i,
