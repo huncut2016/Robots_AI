@@ -21,7 +21,7 @@ class Map:
                 bulletMagnitude=7,
                 HP=200,
                 capacity=10,
-                reloadTime=3000,
+                reloadTime=3.0,
                 direction=random.random() * math.pi * 2,
                 ID=i,
                 W=self.width,
@@ -67,10 +67,11 @@ class Map:
                     bulletDictionary[str(BULLET_CHARACTER_DISTANCE)] = bullet
                     setOfBulletDistances.append(BULLET_CHARACTER_DISTANCE)
 
-                if BULLET_CHARACTER_DISTANCE < 15:  # if the bullet is hit the character
-                    character.HP -= bullet.damage
-                else:
-                    newBullets.append(bullet)
+                    if BULLET_CHARACTER_DISTANCE < 18:  # if the bullet is hit the character
+                        print("sdfsdfsdsfsdf")
+                        character.HP -= bullet.damage
+                    else:
+                        newBullets.append(bullet)
 
             self.bullets = newBullets
             setOfBulletDistances = np.sort(setOfBulletDistances, kind="mergesort")
@@ -115,6 +116,7 @@ class Map:
             newCharacters.append(character)
 
         self.characters = newCharacters
+
 
     def show(self):
 

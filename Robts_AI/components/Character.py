@@ -1,4 +1,4 @@
-import random
+from threading import Timer
 
 from p5 import *  # p5
 from tensorflow.keras.layers import Dense
@@ -21,11 +21,13 @@ class Character:
         self.height = H
 
         self.predict = []
+        self.isReload = False
         self.pos = np.array([x, y])
         self.ID = ID
         self.bulletMagnitude = bulletMagnitude
         self.damage = damage
         self.capacity = capacity
+        self.shots = capacity
         self.HP = HP
         self.rank = None
         self.reloadTime = reloadTime
@@ -37,7 +39,7 @@ class Character:
             Dense(16, activation='sigmoid'),
             Dense(10, activation='sigmoid')
         ])
-        # self.model.summary()
+       # self.model.summary()
         self.model.compile(optimizer="Adam", loss="mse", metrics=["mae"])
 
     def __str__(self):
@@ -72,9 +74,14 @@ class Character:
     def show(self):
         fill(255)  # p5
         circle(self.pos[0], self.pos[1], 25)  # p5
+        face = fromAngle(self.direction, 50) + self.pos
+        fill(255)
+        stroke(255)
+        line(self.pos[0], self.pos[1], face[0], face[1])
 
     def usePredict(self):
         faceDirection = self.predict[2] if self.predict[0] > self.predict[1] else self.predict[3]
+
         lookup = {
             "0": np.array([0, self.magnitude]),
             "1": np.array([0, - self.magnitude]),
@@ -82,6 +89,7 @@ class Character:
             "3": np.array([- self.magnitude, 0]),
             "4": np.array([0, 0])
         }
+
         newVelocities = self.predict[5:]
         velocitiesIndex = str(np.where(newVelocities == max(newVelocities))[0][0])
         isShot = True if self.predict[4] > 0.5 else False
@@ -98,7 +106,7 @@ class Character:
                 self.vel[0],
                 self.vel[1],
                 self.HP,
-                self.capacity,
+                self.shots,
                 self.damage
             ])
         else:
@@ -110,7 +118,7 @@ class Character:
                 self.vel[0],
                 self.vel[1],
                 self.HP,
-                self.capacity,
+                self.shots,
                 self.damage
             ])
 
@@ -118,9 +126,19 @@ class Character:
         self.HP = 0
         self.rank = rank
 
+    def reload (self):
+
+        self.shots = self.capacity
+        self.isReload = False
     def shot(self):
-        if self.isShot and self.visible and self.capacity:
-            self.capacity -= 1
+
+        if self.shots == 0 and not self.isReload:
+            self.isReload = True
+            Timer(interval=self.reloadTime, function=self.reload).start()
+            return None
+
+        if self.isShot and self.visible and self.shots:
+            self.shots -= 1
             return Bullet(
                 x=self.pos[0],
                 y=self.pos[1],

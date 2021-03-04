@@ -1,5 +1,6 @@
 from p5 import *  # p5
 from .components.Map import Map
+from datetime import datetime
 
 
 def Game(width=800, height=800, populationSize=10):
