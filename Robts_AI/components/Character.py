@@ -12,7 +12,8 @@ from .Mapping import Mapping
 
 # noinspection PyTypeChecker
 class Character:
-    def __init__(self, ID: int, direction, x, y, magnitude, damage, W, H, HP, capacity, reloadTime, bulletMagnitude):
+    def __init__(self, ID: int, direction, x, y, magnitude, damage, W, H, HP, capacity, reloadTime, bulletMagnitude,
+                 populationSize, model=False):
         self.magnitude = magnitude
         self.direction = direction
         self.vel = fromAngle(self.direction, self.magnitude)
@@ -20,8 +21,12 @@ class Character:
         self.width = W
         self.height = H
 
+        self.kills = 0
         self.predict = []
+        self.fitnessVal = 0
         self.isReload = False
+        self.x = x
+        self.y = y
         self.pos = np.array([x, y])
         self.ID = ID
         self.bulletMagnitude = bulletMagnitude
@@ -29,24 +34,38 @@ class Character:
         self.capacity = capacity
         self.shots = capacity
         self.HP = HP
-        self.rank = None
+
+        self.deadVal = 1
+
+        self.populationSize = populationSize
+        self.rank = populationSize
         self.reloadTime = reloadTime
         self.isShot = False
         self.visible = True
 
-        self.model = Sequential([
-            Dense(42, input_shape=(31,), activation='sigmoid'),
-            Dense(16, activation='sigmoid'),
-            Dense(7, activation='sigmoid')
-        ])
-       # self.model.summary()
-        self.model.compile(optimizer="Adam", loss="mse", metrics=["mae"])
+        if model:
+            self.model = model
+        else:
+            self.model = Sequential([
+                Dense(42, input_shape=(31,), activation='sigmoid'),
+                Dense(16, activation='sigmoid'),
+                Dense(7, activation='sigmoid')
+            ])
+            # self.model.summary()
+            self.model.compile(optimizer="Adam", loss="mse", metrics=["mae"])
 
     def __str__(self):
         return str(f"""
         ID: {self.ID} 
         RANK: {self.rank}
         """)
+
+    def setDefault(self):
+        self.kills = 0
+        self.rank = self.populationSize
+        self.visible = True
+        self.pos = np.array([self.x, self.y])
+        self.HP = 200
 
     def update(self, enemy, bullets):
         for i in range(3 - len(bullets)):
@@ -126,10 +145,10 @@ class Character:
         self.HP = 0
         self.rank = rank
 
-    def reload (self):
-
+    def reload(self):
         self.shots = self.capacity
         self.isReload = False
+
     def shot(self):
 
         if self.shots == 0 and not self.isReload:
@@ -149,3 +168,7 @@ class Character:
             )
         else:
             return None
+
+    def fitness(self):
+        self.fitnessVal = ((self.rank + 2) ** 3) * ((self.kills + 2) ** 7) / self.deadVal
+        # print(self.model.get_weights())

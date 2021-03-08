@@ -1,9 +1,15 @@
 from p5 import *  # p5
 from .components.Map import Map
+from .components.Population import Population
 from datetime import datetime
 
 
-def Game(width=800, height=800, populationSize=10):
+def Game(width=800, height=800, populationSize=10, train=False):
+    if train:
+        p = Population()
+        p.create()
+        p.play()
+
     isRun = True
 
     if isRun:
