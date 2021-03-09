@@ -66,6 +66,7 @@ class Character:
         self.visible = True
         self.pos = np.array([self.x, self.y])
         self.HP = 200
+        self.deadVal = 1
 
     def update(self, enemy, bullets):
         for i in range(3 - len(bullets)):
@@ -109,7 +110,7 @@ class Character:
             "4": np.array([0, 0])
         }
 
-        newVelocities = self.predict[2:]
+        newVelocities = self.predict[2:-1]
         velocitiesIndex = str(np.where(newVelocities == max(newVelocities))[0][0])
         isShot = True if self.predict[1] > 0.5 else False
 

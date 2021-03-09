@@ -37,13 +37,15 @@ def crossOver(parent1, parent2):
 
 
 class Population:
-    def __init__(self, populationSize=2, maxGeneration=200, characters=2):
-        self.model = keras.models.load_model('weights')
+    def __init__(self, populationSize=2, maxGeneration=200, characters=2, chModels=False):
         self.populationSize = populationSize
         self.maxGeneration = maxGeneration
         self.characters = characters
         self.evolution = []
-
+        if not chModels:
+            self.models = [keras.models.load_model('weights1'), keras.models.load_model('weights2')]
+        else:
+            self.models = chModels
     def create(self):
         characters = []
         for i in range(self.populationSize):
@@ -60,7 +62,8 @@ class Population:
                 ID=i,
                 W=800,
                 H=800,
-                populationSize=10
+                populationSize=10,
+                model=self.models[i]
             )
             characters.append(character)
         self.characters = characters
@@ -73,7 +76,7 @@ class Population:
             characters=self.characters
         )
 
-        for i in range(100):
+        for i in range(10):
             for j in range(2000):
                 state = field.update()
                 if state: break
@@ -82,9 +85,9 @@ class Population:
             self.evolution.append(self.characters[0].fitnessVal)
 
             if field.characters[0].rank < field.characters[1].rank:
-                self.characters[0].model.set_weights(mutation(self.characters[0].model, 0.04))
+                self.characters[0].model.set_weights(mutation(self.characters[0].model, 0.1))
             else:
-                self.characters[1].model.set_weights(mutation(self.characters[1].model, 0.04))
+                self.characters[1].model.set_weights(mutation(self.characters[1].model, 0.1))
 
 
             field = Map(
@@ -93,7 +96,16 @@ class Population:
                 height=800,
                 characters=self.characters
             )
+        field = Map(
+            populationSize=self.populationSize,
+            width=800,
+            height=800,
+            characters=self.characters
+        )
 
+        return self.characters
+
+    def show(self):
         field = Map(
             populationSize=self.populationSize,
             width=800,
@@ -106,17 +118,9 @@ class Population:
 
         def draw():  # p5
             background(0)
-            if field.update(): print("vége")
+            field.update()
             field.show()
 
-        minimum = min(self.evolution)
-        maximum = max(self.evolution)
-        print(maximum, minimum)
-        plt.plot([minimum, maximum])
-        plt.show()
-
-        run(sketch_setup=setup, sketch_draw=draw, frame_rate=200)
-
-
+        run(sketch_setup=setup, sketch_draw=draw, frame_rate=200)  # p5
 
 
